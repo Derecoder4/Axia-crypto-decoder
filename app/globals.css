@@ -1,7 +1,9 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
-@custom-variant dark (&:is(.dark *));
+/* Removed non-standard @custom-variant which caused editor warnings.
+  If you rely on a Tailwind plugin for custom variants, re-add it via
+  PostCSS/Tailwind config instead. */
 
 :root {
   --pink: #e63995;
@@ -87,7 +89,10 @@
   --sidebar-ring: oklch(0.439 0 0);
 }
 
-@theme inline {
+/* Converted non-standard @theme rule into a regular CSS class to
+  avoid unknown at-rule warnings in editors that don't support the
+  custom @theme at-rule. Use the class `theme-inline` where needed. */
+.theme-inline {
   --font-sans: "Geist", "Geist Fallback";
   --font-mono: "Geist Mono", "Geist Mono Fallback";
   --color-background: var(--background);
@@ -202,9 +207,14 @@
 
 @layer base {
   * {
-    @apply border-border outline-ring/50;
+    box-sizing: border-box;
+    /* Keep a conservative default border color; Tailwind's
+       `border-border` would typically map to `var(--color-border)`. */
+    border-color: var(--color-border, var(--border));
   }
   body {
-    @apply bg-background text-foreground;
+    background: var(--color-background, var(--background));
+    color: var(--color-foreground, var(--foreground));
+    font-family: var(--font-sans, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial);
   }
 }

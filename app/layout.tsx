@@ -7,7 +7,7 @@ import "./globals.css"
 
 const _geist = Geist({ subsets: ["latin"] })
 const _geistMono = Geist_Mono({ subsets: ["latin"] })
-const inter = Inter({ subsets: ["latin"], weights: [400, 700, 900] })
+const inter = Inter({ subsets: ["latin"], weight: ["400", "700", "900"] })
 
 export const metadata: Metadata = {
   title: "Axia - Decode Crypto",

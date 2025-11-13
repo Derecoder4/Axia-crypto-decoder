@@ -249,8 +249,16 @@ export default function Home() {
                   value={term}
                   onChange={(e) => setTerm(e.target.value)}
                   onKeyPress={handleKeyPress}
-                  onFocus={() => setShowHistory(true)}
-                  onBlur={() => setTimeout(() => setShowHistory(false), 150)}
+                    onFocus={(e) => {
+                      setShowHistory(true)
+                      e.currentTarget.style.borderColor = "#E63995"
+                      e.currentTarget.style.boxShadow = "0 0 10px rgba(230, 57, 149, 0.2)"
+                    }}
+                    onBlur={(e) => {
+                      setTimeout(() => setShowHistory(false), 150)
+                      e.currentTarget.style.borderColor = "#333"
+                      e.currentTarget.style.boxShadow = "none"
+                    }}
                   placeholder="e.g., ZK-Rollup, Impermanent Loss, MEV"
                   style={{
                     width: "100%",
@@ -264,14 +272,7 @@ export default function Home() {
                     boxSizing: "border-box",
                     transition: "all 0.3s ease",
                   }}
-                  onFocus={(e) => {
-                    e.currentTarget.style.borderColor = "#E63995"
-                    e.currentTarget.style.boxShadow = "0 0 10px rgba(230, 57, 149, 0.2)"
-                  }}
-                  onBlur={(e) => {
-                    e.currentTarget.style.borderColor = "#333"
-                    e.currentTarget.style.boxShadow = "none"
-                  }}
+                  /* focus/blur behavior merged above to avoid duplicate props */
                 />
 
                 {/* Search History Dropdown */}

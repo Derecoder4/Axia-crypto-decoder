@@ -48,13 +48,14 @@ Follow these steps to get Axia running on your local machine.
 ```bash
 git clone [https://github.com/yourusername/axia-crypto.git](https://github.com/yourusername/axia-crypto.git)
 cd axia-crypto
-2. Install Dependencies
+
+### 2. Install Dependencies
 Bash
 
-npm install
+pnpm install
 # or
 yarn install
-3. Configure Environment Variables
+### 3. Configure Environment Variables
 Create a .env.local file in the root directory. You will need a Hugging Face Access Token (free).
 
 Bash
@@ -95,7 +96,8 @@ JSON
     "symbol": "ETH"
   }
 }
-📂 Project Structure
+
+### 📂 Project Structure
 axia-crypto/
 ├── public/              # Static assets
 ├── src/
