@@ -3,7 +3,7 @@
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 ![Next.js](https://img.shields.io/badge/Next.js-16-black)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue)
-![AI](https://img.shields.io/badge/Powered%20by-Dobby%20AI-pink)
+![Fireworks AI](https://img.shields.io/badge/Powered%20by-Fireworks%20AI-orange)
 
 > **"Listen, DeFi is basically just banks but run by computer nerds instead of old guys in suits." — Dobby**
 
@@ -13,26 +13,33 @@
 
 ## ✨ Features
 
-### 🔍 Core Functionality
-- **AI-Powered Analysis:** Enter any term (e.g., "Impermanent Loss", "ZK-Rollup") and get a blunt, easy-to-understand explanation from Dobby.
-- **Live Market Data:** Automatically fetches real-time Price, Market Cap, and 24h Change data via CoinGecko for relevant tokens.
-- **Trending & Random:** Discover new concepts via the "Trending" sidebar or the "Random Term" generator.
+### Core Functionality
+* **AI-Powered Analysis:** Get blunt, witty explanations from Dobby AI (powered by the `dobby-mini-unhinged-plus` model).
+* **Live Market Data:** Automatically fetches real-time Price, 24h Change, and Market Cap from CoinGecko for any token.
+* **Concept-Aware:** Intelligently detects if a search term is a **concept** (like "DeFi") or a **token** (like "Bitcoin") and adjusts the data display.
 
-### 🎨 UX & UI
-- **Modern Stack:** Built with Next.js 16 (App Router) and React 19.
-- **Sleek Design:** Fully responsive Dark Mode UI using Tailwind CSS v4.
-- **Interactive:** Smooth animations using Framer Motion and custom CSS keyframes.
-- **User Persistence:** Saves your **Search History** and **Favorites** locally so you never lose track of your learning.
+### UI & UX
+* **Modern Stack:** Built with Next.js 16 (App Router) and React 19.
+* **Dynamic UI:** Sleek dark mode with custom animations (`slideUp`, `glow`, `fadeIn`).
+* **Discovery:** A "Trending" terms sidebar and a "Random Term" button to help users discover new concepts.
+
+### User Persistence
+* **Favorites:** Save, view, and re-analyze your favorite terms.
+* **Search History:** Quickly access your last 5 searches from a dropdown.
+* **Persistent State:** Uses `localStorage` to remember your favorites and history between sessions.
 
 ---
 
 ## 🛠️ Tech Stack
 
-- **Frontend:** Next.js 16, React 19, TypeScript
-- **Styling:** Tailwind CSS, Lucide React (Icons), Framer Motion
-- **Backend / API:** Next.js Serverless API Routes (`/app/api`)
-- **AI Model:** SentientAGI/Dobby-Mini-Unhinged-Llama-3.1-8B (via Hugging Face Inference API)
-- **Market Data:** CoinGecko Public API
+| Category | Technology | Purpose |
+| --- | --- | --- |
+| **Frontend** | **Next.js 16** (App Router) | UI & Serverless API Routes |
+| **Styling** | **Tailwind CSS** | Utility-first styling & animations |
+| **State** | **React Hooks** (`useState`, `useEffect`) | Managing all local UI state |
+| **Persistence**| `localStorage` | Storing user favorites & history |
+| **Backend AI** | **Fireworks AI** | Serving the **Dobby Unhinged Plus** model |
+| **Backend Data** | **CoinGecko API** | Providing live market data |
 
 ---
 
@@ -41,76 +48,54 @@
 Follow these steps to get Axia running on your local machine.
 
 ### Prerequisites
-- Node.js (v18 or higher)
-- npm or yarn
+* Node.js (v18 or higher)
+* `pnpm` (This project uses `pnpm` for package management)
 
 ### 1. Clone the Repository
 ```bash
-git clone [https://github.com/yourusername/axia-crypto.git](https://github.com/yourusername/axia-crypto.git)
-cd axia-crypto
+git clone [https://github.com/your-username/axia-crypto-decoder.git](https://github.com/your-username/axia-crypto-decoder.git)
+cd axia-crypto-decoder
 
-### 2. Install Dependencies
-Bash
+"### 2. Install Dependencies"
+ 
+''pnpm install
 
-pnpm install
-# or
-yarn install
-### 3. Configure Environment Variables
-Create a .env.local file in the root directory. You will need a Hugging Face Access Token (free).
+"### Configure Environment Variables
+Create a file named .env.local in the root of the project. You will need a Fireworks AI API key.
 
-Bash
+# Get your key from [https://fireworks.ai](https://fireworks.ai)
+FIREWORKS_API_KEY=YOUR_FIREWORKS_KEY_GOES_HERE
 
-# .env.local
+"###  Run the Development Server
+pnpm run dev
+Open http://localhost:3000 in your browser to see the app.
 
-# Get your token here: [https://huggingface.co/settings/tokens](https://huggingface.co/settings/tokens)
-HUGGING_FACE_API_KEY=hf_your_token_goes_here
-4. Run the Development Server
-Bash
+"###  🔌 API Endpoints
+The app's backend logic is contained in two Next.js API Routes:
 
-npm run dev
-Open http://localhost:3000 with your browser to see the result.
+POST /api/analyze This is the main engine. It receives a term, sends it to Fireworks AI for analysis, and simultaneously fetches market data from CoinGecko.
 
-🔌 API Reference
-Axia uses an internal Next.js API route to bridge the client with the AI and Data providers.
+GET /api/random-term Provides a random term from a predefined list, which is then used to call the /api/analyze endpoint.
 
-POST /api/analyze
-Analyzes a crypto term and fetches market data.
+###  📂 Project Structure
+axia-crypto-decoder/
+├── app/
+│   ├── api/
+│   │   ├── analyze/
+│   │   │   └── route.ts  <-- The main AI + CoinGecko logic
+│   │   └── random-term/
+│   │       └── route.ts  <-- The random term logic
+│   ├── globals.css       <-- All custom styles & animations
+│   ├── layout.tsx        <-- The main app shell
+│   └── page.tsx          <-- The main page UI
+├── components/
+│   ├── navbar.tsx
+│   └── particle-background.tsx
+├── .env.local            <-- Your API key (secret!)
+├── package.json
+└── README.md
 
-Request Body:
 
-JSON
-
-{
-  "term": "Ethereum"
-}
-Response:
-
-JSON
-
-{
-  "dobbyTake": "Ethereum is basically the world's slowest, most expensive computer...",
-  "marketData": {
-    "price": 2500.50,
-    "change_24h": 1.25,
-    "market_cap": 300000000000,
-    "symbol": "ETH"
-  }
-}
-
-### 📂 Project Structure
-axia-crypto/
-├── public/              # Static assets
-├── src/
-│   ├── app/
-│   │   ├── api/         # Server-side API logic
-│   │   │   └── analyze/ # The AI & CoinGecko handler
-│   │   ├── globals.css  # Global styles & Tailwind imports
-│   │   ├── layout.tsx   # Root layout
-│   │   └── page.tsx     # Main UI (Search, Results, Sidebar)
-│   └── lib/             # Utility functions (optional)
-├── .env.local           # API Keys (Do not commit this!)
-├── next.config.mjs      # Next.js configuration
-└── README.md            # You are here
 🤝 Contributing
 Contributions are welcome! If you want to make Dobby smarter (or meaner), feel free to open a PR.
 
@@ -125,6 +110,4 @@ Push to the Branch (git push origin feature/AmazingFeature)
 Open a Pull Request
 
 📄 License
-Distributed under the MIT License. See LICENSE for more information.
-
-Built with ❤️ (and a bit of sarcasm) by josh
+Distributed under the MIT License.
