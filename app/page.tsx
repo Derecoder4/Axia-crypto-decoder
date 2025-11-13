@@ -192,7 +192,7 @@ export default function Home() {
       <main
         style={{
           flex: 1,
-          padding: "2rem 1.5rem",
+          padding: window.innerWidth < 768 ? "1rem" : "2rem 1.5rem",
           maxWidth: "1200px",
           margin: "0 auto",
           width: "100%",
@@ -202,7 +202,7 @@ export default function Home() {
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: "1fr 280px",
+            gridTemplateColumns: window.innerWidth < 768 ? "1fr" : "1fr 280px",
             gap: "2rem",
             alignItems: "start",
           }}
@@ -212,7 +212,7 @@ export default function Home() {
             {/* Headings */}
             <h1
               style={{
-                fontSize: "2.5rem",
+                fontSize: window.innerWidth < 768 ? "1.75rem" : "2.5rem",
                 fontWeight: 700,
                 color: "#e0e0e0",
                 margin: "0 0 0.5rem 0",
@@ -238,6 +238,7 @@ export default function Home() {
             <div
               style={{
                 display: "flex",
+                flexDirection: window.innerWidth < 480 ? "column" : "row",
                 gap: "0.75rem",
                 marginBottom: "2rem",
                 animation: "slideUp 0.5s ease-out 0.2s backwards",
@@ -341,8 +342,10 @@ export default function Home() {
                   transition: "all 0.3s ease",
                   display: "flex",
                   alignItems: "center",
+                  justifyContent: "center",
                   gap: "0.5rem",
                   whiteSpace: "nowrap",
+                  width: window.innerWidth < 480 ? "100%" : "auto",
                 }}
                 onMouseEnter={(e) => {
                   if (!isLoading) {
@@ -427,7 +430,7 @@ export default function Home() {
                     background: "#1e1e1e",
                     border: "1px solid #333",
                     borderRadius: "0.5rem",
-                    padding: "1.5rem",
+                    padding: window.innerWidth < 768 ? "1rem" : "1.5rem",
                     animation: "slideUp 0.4s ease-out",
                     transition: "all 0.3s ease",
                     cursor: "pointer",
@@ -531,7 +534,7 @@ export default function Home() {
                     background: "#1e1e1e",
                     border: "1px solid #333",
                     borderRadius: "0.5rem",
-                    padding: "1.5rem",
+                    padding: window.innerWidth < 768 ? "1rem" : "1.5rem",
                     animation: "slideUp 0.5s ease-out",
                     transition: "all 0.3s ease",
                     cursor: "pointer",
@@ -620,7 +623,7 @@ export default function Home() {
           {/* Sidebar */}
           <div
             style={{
-              display: "flex",
+              display: window.innerWidth < 768 ? "none" : "flex",
               flexDirection: "column",
               gap: "1.5rem",
               animation: "slideUp 0.5s ease-out 0.3s backwards",
@@ -779,9 +782,9 @@ export default function Home() {
       <footer
         style={{
           textAlign: "center",
-          padding: "2rem 1.5rem",
+          padding: window.innerWidth < 768 ? "1.5rem 1rem" : "2rem 1.5rem",
           color: "#555",
-          fontSize: "0.85rem",
+          fontSize: window.innerWidth < 768 ? "0.75rem" : "0.85rem",
           borderTop: "1px solid #333",
           marginTop: "auto",
           animation: "fadeIn 0.6s ease-out 0.4s backwards",
