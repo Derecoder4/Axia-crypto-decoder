@@ -1,30 +1,50 @@
-# Crypto term decoder
+# Axia - Crypto Term Decoder 🧠⚡
 
-*Automatically synced with your [v0.app](https://v0.app) deployments*
+![License](https://img.shields.io/badge/license-MIT-blue.svg)
+![Next.js](https://img.shields.io/badge/Next.js-16-black)
+![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue)
+![AI](https://img.shields.io/badge/Powered%20by-Dobby%20AI-pink)
 
-[![Deployed on Vercel](https://img.shields.io/badge/Deployed%20on-Vercel-black?style=for-the-badge&logo=vercel)](https://vercel.com/boyo-ebukas-projects/v0-crypto-term-decoder)
-[![Built with v0](https://img.shields.io/badge/Built%20with-v0.app-black?style=for-the-badge)](https://v0.app/chat/c0TVMZ2OXGu)
+> **"Listen, DeFi is basically just banks but run by computer nerds instead of old guys in suits." — Dobby**
 
-## Overview
+**Axia** is a modern crypto education platform that cuts through the jargon. Instead of boring textbook definitions, it uses **Dobby AI** (a blunt, unhinged Llama-3 model) to explain complex crypto concepts in plain English. It combines these witty insights with real-time market data to give users the full picture.
 
-This repository will stay in sync with your deployed chats on [v0.app](https://v0.app).
-Any changes you make to your deployed app will be automatically pushed to this repository from [v0.app](https://v0.app).
+---
 
-## Deployment
+## ✨ Features
 
-Your project is live at:
+### 🔍 Core Functionality
+- **AI-Powered Analysis:** Enter any term (e.g., "Impermanent Loss", "ZK-Rollup") and get a blunt, easy-to-understand explanation from Dobby.
+- **Live Market Data:** Automatically fetches real-time Price, Market Cap, and 24h Change data via CoinGecko for relevant tokens.
+- **Trending & Random:** Discover new concepts via the "Trending" sidebar or the "Random Term" generator.
 
-**[https://vercel.com/boyo-ebukas-projects/v0-crypto-term-decoder](https://vercel.com/boyo-ebukas-projects/v0-crypto-term-decoder)**
+### 🎨 UX & UI
+- **Modern Stack:** Built with Next.js 16 (App Router) and React 19.
+- **Sleek Design:** Fully responsive Dark Mode UI using Tailwind CSS v4.
+- **Interactive:** Smooth animations using Framer Motion and custom CSS keyframes.
+- **User Persistence:** Saves your **Search History** and **Favorites** locally so you never lose track of your learning.
 
-## Build your app
+---
 
-Continue building your app on:
+## 🛠️ Tech Stack
 
-**[https://v0.app/chat/c0TVMZ2OXGu](https://v0.app/chat/c0TVMZ2OXGu)**
+- **Frontend:** Next.js 16, React 19, TypeScript
+- **Styling:** Tailwind CSS, Lucide React (Icons), Framer Motion
+- **Backend / API:** Next.js Serverless API Routes (`/app/api`)
+- **AI Model:** SentientAGI/Dobby-Mini-Unhinged-Llama-3.1-8B (via Hugging Face Inference API)
+- **Market Data:** CoinGecko Public API
 
-## How It Works
+---
 
-1. Create and modify your project using [v0.app](https://v0.app)
-2. Deploy your chats from the v0 interface
-3. Changes are automatically pushed to this repository
-4. Vercel deploys the latest version from this repository
+## 🚀 Getting Started
+
+Follow these steps to get Axia running on your local machine.
+
+### Prerequisites
+- Node.js (v18 or higher)
+- npm or yarn
+
+### 1. Clone the Repository
+```bash
+git clone [https://github.com/yourusername/axia-crypto.git](https://github.com/yourusername/axia-crypto.git)
+cd axia-crypto
