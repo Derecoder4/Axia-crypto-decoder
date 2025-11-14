@@ -5,6 +5,23 @@ import { useState, useEffect, useCallback } from "react"
 import { Loader2, Heart, Share2 } from "lucide-react"
 import { Navbar } from "@/components/navbar"
 
+// Responsive helper hook
+const useMediaQuery = (query: string) => {
+  const [matches, setMatches] = useState(false)
+
+  useEffect(() => {
+    const media = window.matchMedia(query)
+    if (media.matches !== matches) {
+      setMatches(media.matches)
+    }
+    const listener = () => setMatches(media.matches)
+    media.addEventListener("change", listener)
+    return () => media.removeEventListener("change", listener)
+  }, [matches, query])
+
+  return matches
+}
+
 const TRENDING_TERMS = [
   "Bitcoin (BTC)",
   "Ethereum (ETH)",
@@ -61,6 +78,11 @@ export default function Home() {
   const [result, setResult] = useState<CryptoResult | null>(null)
   const [showHistory, setShowHistory] = useState<boolean>(false)
   const [favorites, setFavorites] = useState<string[]>([])
+
+  // Responsive breakpoints
+  const isMobile = useMediaQuery("(max-width: 640px)")
+  const isTablet = useMediaQuery("(max-width: 1024px)")
+  const isDesktop = useMediaQuery("(min-width: 1025px)")
 
   // Load favorites from localStorage on mount
   useEffect(() => {
@@ -192,7 +214,7 @@ export default function Home() {
       <main
         style={{
           flex: 1,
-          padding: window.innerWidth < 768 ? "1rem" : "2rem 1.5rem",
+          padding: isMobile ? "1rem" : isTablet ? "1.25rem" : "2rem 1.5rem",
           maxWidth: "1200px",
           margin: "0 auto",
           width: "100%",
@@ -202,8 +224,8 @@ export default function Home() {
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: window.innerWidth < 768 ? "1fr" : "1fr 280px",
-            gap: "2rem",
+            gridTemplateColumns: isDesktop ? "1fr 280px" : "1fr",
+            gap: isDesktop ? "2rem" : "1.5rem",
             alignItems: "start",
           }}
         >
@@ -212,7 +234,7 @@ export default function Home() {
             {/* Headings */}
             <h1
               style={{
-                fontSize: window.innerWidth < 768 ? "1.75rem" : "2.5rem",
+                fontSize: isMobile ? "1.5rem" : isTablet ? "1.875rem" : "2.5rem",
                 fontWeight: 700,
                 color: "#e0e0e0",
                 margin: "0 0 0.5rem 0",
@@ -224,7 +246,7 @@ export default function Home() {
             </h1>
             <p
               style={{
-                fontSize: "1.1rem",
+                fontSize: isMobile ? "0.95rem" : "1.1rem",
                 color: "#aaa",
                 margin: "0 0 2rem 0",
                 lineHeight: "1.6",
@@ -238,7 +260,7 @@ export default function Home() {
             <div
               style={{
                 display: "flex",
-                flexDirection: window.innerWidth < 480 ? "column" : "row",
+                flexDirection: isMobile ? "column" : "row",
                 gap: "0.75rem",
                 marginBottom: "2rem",
                 animation: "slideUp 0.5s ease-out 0.2s backwards",
@@ -260,20 +282,19 @@ export default function Home() {
                       e.currentTarget.style.borderColor = "#333"
                       e.currentTarget.style.boxShadow = "none"
                     }}
-                  placeholder="e.g., ZK-Rollup, Impermanent Loss, MEV"
+                  placeholder={isMobile ? "e.g., DeFi, NFT" : "e.g., ZK-Rollup, Impermanent Loss, MEV"}
                   style={{
                     width: "100%",
-                    padding: "0.75rem 1rem",
+                    padding: isMobile ? "0.625rem 0.875rem" : "0.75rem 1rem",
                     background: "#222",
                     border: "1px solid #333",
                     borderRadius: "0.5rem",
                     color: "#e0e0e0",
-                    fontSize: "1rem",
+                    fontSize: isMobile ? "0.95rem" : "1rem",
                     outline: "none",
                     boxSizing: "border-box",
                     transition: "all 0.3s ease",
                   }}
-                  /* focus/blur behavior merged above to avoid duplicate props */
                 />
 
                 {/* Search History Dropdown */}
@@ -330,13 +351,13 @@ export default function Home() {
                 onClick={(e) => handleAnalyze(e)}
                 disabled={isLoading}
                 style={{
-                  padding: "0.75rem 1.5rem",
+                  padding: isMobile ? "0.625rem 1rem" : "0.75rem 1.5rem",
                   background: "#E63995",
                   color: "white",
                   border: "none",
                   borderRadius: "0.5rem",
                   fontWeight: 700,
-                  fontSize: "1rem",
+                  fontSize: isMobile ? "0.9rem" : "1rem",
                   cursor: isLoading ? "not-allowed" : "pointer",
                   opacity: isLoading ? 0.6 : 1,
                   transition: "all 0.3s ease",
@@ -345,7 +366,7 @@ export default function Home() {
                   justifyContent: "center",
                   gap: "0.5rem",
                   whiteSpace: "nowrap",
-                  width: window.innerWidth < 480 ? "100%" : "auto",
+                  width: isMobile ? "100%" : "auto",
                 }}
                 onMouseEnter={(e) => {
                   if (!isLoading) {
@@ -363,10 +384,10 @@ export default function Home() {
                 {isLoading ? (
                   <>
                     <Loader2 size={18} className="animate-spin" />
-                    Analyzing...
+                    {isMobile ? "..." : "Analyzing..."}
                   </>
                 ) : (
-                  "Analyze"
+                  isMobile ? "Search" : "Analyze"
                 )}
               </button>
             </div>
@@ -430,7 +451,7 @@ export default function Home() {
                     background: "#1e1e1e",
                     border: "1px solid #333",
                     borderRadius: "0.5rem",
-                    padding: window.innerWidth < 768 ? "1rem" : "1.5rem",
+                    padding: isMobile ? "0.875rem" : isTablet ? "1.25rem" : "1.5rem",
                     animation: "slideUp 0.4s ease-out",
                     transition: "all 0.3s ease",
                     cursor: "pointer",
@@ -450,13 +471,15 @@ export default function Home() {
                     style={{
                       display: "flex",
                       justifyContent: "space-between",
-                      alignItems: "center",
+                      alignItems: isMobile ? "flex-start" : "center",
                       marginBottom: "1rem",
+                      flexDirection: isMobile ? "column" : "row",
+                      gap: isMobile ? "0.75rem" : "0",
                     }}
                   >
                     <h2
                       style={{
-                        fontSize: "1.25rem",
+                        fontSize: isMobile ? "1.1rem" : "1.25rem",
                         fontWeight: 700,
                         color: "#E63995",
                         margin: 0,
@@ -522,6 +545,7 @@ export default function Home() {
                       margin: 0,
                       whiteSpace: "pre-wrap",
                       wordBreak: "break-word",
+                      fontSize: isMobile ? "0.9rem" : "1rem",
                     }}
                   >
                     {result.dobbyTake}
@@ -534,7 +558,7 @@ export default function Home() {
                     background: "#1e1e1e",
                     border: "1px solid #333",
                     borderRadius: "0.5rem",
-                    padding: window.innerWidth < 768 ? "1rem" : "1.5rem",
+                    padding: isMobile ? "0.875rem" : isTablet ? "1.25rem" : "1.5rem",
                     animation: "slideUp 0.5s ease-out",
                     transition: "all 0.3s ease",
                     cursor: "pointer",
@@ -552,7 +576,7 @@ export default function Home() {
                 >
                   <h2
                     style={{
-                      fontSize: "1.25rem",
+                      fontSize: isMobile ? "1.1rem" : "1.25rem",
                       fontWeight: 700,
                       color: "#E63995",
                       margin: "0 0 1rem 0",
@@ -566,7 +590,7 @@ export default function Home() {
                   ) : result.marketData.categories ? (
                     <div style={{ color: "#e0e0e0" }}>
                       <p style={{ margin: "0 0 0.5rem 0", fontWeight: 600 }}>Categories:</p>
-                      <ul style={{ margin: 0, paddingLeft: "1.5rem" }}>
+                      <ul style={{ margin: 0, paddingLeft: "1.5rem", fontSize: isMobile ? "0.9rem" : "1rem" }}>
                         {result.marketData.categories.map((cat, idx) => (
                           <li key={idx} style={{ color: "#e0e0e0" }}>
                             {cat}
@@ -575,11 +599,11 @@ export default function Home() {
                       </ul>
                     </div>
                   ) : result.marketData.price !== undefined ? (
-                    <div style={{ color: "#e0e0e0", lineHeight: "1.8" }}>
+                    <div style={{ color: "#e0e0e0", lineHeight: "1.8", fontSize: isMobile ? "0.9rem" : "1rem" }}>
                       <p style={{ margin: "0 0 0.5rem 0" }}>
                         <strong>{result.marketData.name}</strong> ({result.marketData.symbol?.toUpperCase()})
                       </p>
-                      <p style={{ margin: "0 0 0.5rem 0", fontSize: "1.5rem" }}>
+                      <p style={{ margin: "0 0 0.5rem 0", fontSize: isMobile ? "1.25rem" : "1.5rem" }}>
                         {formatPrice(result.marketData.price)}
                       </p>
                       <p
@@ -593,7 +617,7 @@ export default function Home() {
                         24h Change: {result.marketData.change_24h_percent?.toFixed(2)}%
                       </p>
                       {result.marketData.market_cap && (
-                        <p style={{ margin: 0, fontSize: "0.9rem", color: "#aaa" }}>
+                        <p style={{ margin: 0, fontSize: isMobile ? "0.8rem" : "0.9rem", color: "#aaa" }}>
                           Market Cap: {result.marketData.market_cap}
                         </p>
                       )}
@@ -620,54 +644,116 @@ export default function Home() {
             )}
           </div>
 
-          {/* Sidebar */}
-          <div
-            style={{
-              display: window.innerWidth < 768 ? "none" : "flex",
-              flexDirection: "column",
-              gap: "1.5rem",
-              animation: "slideUp 0.5s ease-out 0.3s backwards",
-            }}
-          >
-            {/* Favorites */}
+          {/* Sidebar - Hidden on Mobile */}
+          {isDesktop && (
             <div
               style={{
-                background: "#1e1e1e",
-                border: "1px solid #333",
-                borderRadius: "0.5rem",
-                padding: "1.5rem",
-                transition: "all 0.3s ease",
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.borderColor = "#E63995"
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.borderColor = "#333"
+                display: "flex",
+                flexDirection: "column",
+                gap: "1.5rem",
+                animation: "slideUp 0.5s ease-out 0.3s backwards",
               }}
             >
-              <h3
+              {/* Favorites */}
+              <div
                 style={{
-                  fontSize: "1rem",
-                  fontWeight: 700,
-                  color: "#E63995",
-                  margin: "0 0 1rem 0",
+                  background: "#1e1e1e",
+                  border: "1px solid #333",
+                  borderRadius: "0.5rem",
+                  padding: "1.5rem",
+                  transition: "all 0.3s ease",
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.borderColor = "#E63995"
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.borderColor = "#333"
                 }}
               >
-                Favorites
-              </h3>
-              {favorites.length === 0 ? (
-                <p style={{ color: "#666", fontSize: "0.9rem", margin: 0 }}>No favorites yet</p>
-              ) : (
+                <h3
+                  style={{
+                    fontSize: "1rem",
+                    fontWeight: 700,
+                    color: "#E63995",
+                    margin: "0 0 1rem 0",
+                  }}
+                >
+                  Favorites
+                </h3>
+                {favorites.length === 0 ? (
+                  <p style={{ color: "#666", fontSize: "0.9rem", margin: 0 }}>No favorites yet</p>
+                ) : (
+                  <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+                    {favorites.map((fav, idx) => (
+                      <button
+                        key={idx}
+                        onClick={() => handleAnalyze(undefined, fav)}
+                        style={{
+                          background: "transparent",
+                          border: "1px solid #333",
+                          color: "#e0e0e0",
+                          padding: "0.5rem 0.75rem",
+                          borderRadius: "0.375rem",
+                          cursor: "pointer",
+                          fontSize: "0.85rem",
+                          transition: "all 0.2s ease",
+                          textAlign: "left",
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.borderColor = "#E63995"
+                          e.currentTarget.style.color = "#E63995"
+                          e.currentTarget.style.transform = "translateX(4px)"
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.borderColor = "#333"
+                          e.currentTarget.style.color = "#e0e0e0"
+                          e.currentTarget.style.transform = "translateX(0)"
+                        }}
+                      >
+                        {fav}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Trending Terms */}
+              <div
+                style={{
+                  background: "#1e1e1e",
+                  border: "1px solid #333",
+                  borderRadius: "0.5rem",
+                  padding: "1.5rem",
+                  transition: "all 0.3s ease",
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.borderColor = "#E63995"
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.borderColor = "#333"
+                }}
+              >
+                <h3
+                  style={{
+                    fontSize: "1rem",
+                    fontWeight: 700,
+                    color: "#E63995",
+                    margin: "0 0 1rem 0",
+                  }}
+                >
+                  Trending
+                </h3>
                 <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
-                  {favorites.map((fav, idx) => (
+                  {TRENDING_TERMS.slice(0, 8).map((term, idx) => (
                     <button
                       key={idx}
-                      onClick={() => handleAnalyze(undefined, fav)}
+                      onClick={() => handleAnalyze(undefined, term)}
                       style={{
+                        width: "100%",
+                        padding: "0.5rem 0.75rem",
                         background: "transparent",
                         border: "1px solid #333",
                         color: "#e0e0e0",
-                        padding: "0.5rem 0.75rem",
                         borderRadius: "0.375rem",
                         cursor: "pointer",
                         fontSize: "0.85rem",
@@ -685,96 +771,36 @@ export default function Home() {
                         e.currentTarget.style.transform = "translateX(0)"
                       }}
                     >
-                      {fav}
+                      {term}
                     </button>
                   ))}
                 </div>
-              )}
-            </div>
+              </div>
 
-            {/* Trending Terms */}
-            <div
-              style={{
-                background: "#1e1e1e",
-                border: "1px solid #333",
-                borderRadius: "0.5rem",
-                padding: "1.5rem",
-                transition: "all 0.3s ease",
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.borderColor = "#E63995"
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.borderColor = "#333"
-              }}
-            >
-              <h3
+              {/* Tips */}
+              <div
                 style={{
-                  fontSize: "1rem",
-                  fontWeight: 700,
-                  color: "#E63995",
-                  margin: "0 0 1rem 0",
+                  background: "rgba(230, 57, 149, 0.1)",
+                  border: "1px solid #E63995",
+                  borderRadius: "0.5rem",
+                  padding: "1rem",
+                  animation: "glow 2s ease-in-out infinite",
                 }}
               >
-                Trending
-              </h3>
-              <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
-                {TRENDING_TERMS.slice(0, 8).map((term, idx) => (
-                  <button
-                    key={idx}
-                    onClick={() => handleAnalyze(undefined, term)}
-                    style={{
-                      width: "100%",
-                      padding: "0.5rem 0.75rem",
-                      background: "transparent",
-                      border: "1px solid #333",
-                      color: "#e0e0e0",
-                      borderRadius: "0.375rem",
-                      cursor: "pointer",
-                      fontSize: "0.85rem",
-                      transition: "all 0.2s ease",
-                      textAlign: "left",
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.borderColor = "#E63995"
-                      e.currentTarget.style.color = "#E63995"
-                      e.currentTarget.style.transform = "translateX(4px)"
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.borderColor = "#333"
-                      e.currentTarget.style.color = "#e0e0e0"
-                      e.currentTarget.style.transform = "translateX(0)"
-                    }}
-                  >
-                    {term}
-                  </button>
-                ))}
+                <p
+                  style={{
+                    fontSize: "0.85rem",
+                    color: "#aaa",
+                    margin: 0,
+                    lineHeight: "1.5",
+                  }}
+                >
+                  <strong style={{ color: "#E63995" }}>Tip:</strong> Click the heart icon to save terms, or hit "Random
+                  Term" to discover crypto concepts.
+                </p>
               </div>
             </div>
-
-            {/* Tips */}
-            <div
-              style={{
-                background: "rgba(230, 57, 149, 0.1)",
-                border: "1px solid #E63995",
-                borderRadius: "0.5rem",
-                padding: "1rem",
-                animation: "glow 2s ease-in-out infinite",
-              }}
-            >
-              <p
-                style={{
-                  fontSize: "0.85rem",
-                  color: "#aaa",
-                  margin: 0,
-                  lineHeight: "1.5",
-                }}
-              >
-                <strong style={{ color: "#E63995" }}>Tip:</strong> Click the heart icon to save terms, or hit "Random
-                Term" to discover crypto concepts.
-              </p>
-            </div>
-          </div>
+          )}
         </div>
       </main>
 
@@ -782,9 +808,9 @@ export default function Home() {
       <footer
         style={{
           textAlign: "center",
-          padding: window.innerWidth < 768 ? "1.5rem 1rem" : "2rem 1.5rem",
+          padding: isMobile ? "1rem" : isTablet ? "1.5rem 1rem" : "2rem 1.5rem",
           color: "#555",
-          fontSize: window.innerWidth < 768 ? "0.75rem" : "0.85rem",
+          fontSize: isMobile ? "0.7rem" : isTablet ? "0.75rem" : "0.85rem",
           borderTop: "1px solid #333",
           marginTop: "auto",
           animation: "fadeIn 0.6s ease-out 0.4s backwards",
