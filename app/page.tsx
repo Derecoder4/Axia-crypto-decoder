@@ -60,6 +60,15 @@ interface CryptoResult {
   marketData: MarketData
 }
 
+interface NewsItem {
+  title: string
+  description?: string
+  source: string
+  url: string
+  published_at: string
+  image_url?: string
+}
+
 const formatPrice = (price: number | undefined): string => {
   if (price === undefined) return "N/A"
   return price.toLocaleString(undefined, {
@@ -78,11 +87,16 @@ export default function Home() {
   const [result, setResult] = useState<CryptoResult | null>(null)
   const [showHistory, setShowHistory] = useState<boolean>(false)
   const [favorites, setFavorites] = useState<string[]>([])
+  const [news, setNews] = useState<NewsItem[]>([])
+  const [newsLoading, setNewsLoading] = useState<boolean>(false)
 
   // Responsive breakpoints
   const isMobile = useMediaQuery("(max-width: 640px)")
   const isTablet = useMediaQuery("(max-width: 1024px)")
   const isDesktop = useMediaQuery("(min-width: 1025px)")
+
+  // Complexity modes
+  const [complexity, setComplexity] = useState<"simple" | "normal" | "expert">("normal")
 
   // Load favorites from localStorage on mount
   useEffect(() => {
@@ -90,12 +104,23 @@ export default function Home() {
     if (savedFavorites) {
       setFavorites(JSON.parse(savedFavorites))
     }
+
+    // Load complexity preference from localStorage
+    const savedComplexity = localStorage.getItem("cryptoDobbyComplexity") as "simple" | "normal" | "expert" | null
+    if (savedComplexity) {
+      setComplexity(savedComplexity)
+    }
   }, [])
 
   // Save favorites to localStorage whenever they change
   useEffect(() => {
     localStorage.setItem("cryptoDobbyFavorites", JSON.stringify(favorites))
   }, [favorites])
+
+  // Save complexity preference to localStorage whenever it changes
+  useEffect(() => {
+    localStorage.setItem("cryptoDobbyComplexity", complexity)
+  }, [complexity])
 
   const handleAnalyze = useCallback(
     async (e?: React.MouseEvent, prefilledTerm?: string) => {
@@ -113,10 +138,13 @@ export default function Home() {
       }
 
       try {
+        setNewsLoading(true)
+        setNews([])
+
         const response = await fetch("/api/analyze", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ term: searchTerm }),
+          body: JSON.stringify({ term: searchTerm, complexity }),
         })
 
         const data = await response.json()
@@ -128,6 +156,22 @@ export default function Home() {
         setResult(data)
         setTerm("") // Clear input after successful analysis
         setShowHistory(false) // Hide history after analysis
+
+        // Fetch news in the background (doesn't block results display)
+        try {
+          const newsResponse = await fetch("/api/news", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ term: searchTerm }),
+          })
+          const newsData = await newsResponse.json()
+          setNews(newsData.news || [])
+        } catch (newsErr) {
+          console.error("News fetch failed:", newsErr)
+          setNews([]) // Silently fail - don't show error
+        } finally {
+          setNewsLoading(false)
+        }
       } catch (err: any) {
         setError(err.message || "Failed to analyze term. Please try again.")
         setResult(null) // Ensure no stale results are shown
@@ -392,6 +436,67 @@ export default function Home() {
               </button>
             </div>
 
+            {/* Complexity Toggle */}
+            <div
+              style={{
+                display: "flex",
+                gap: "0.5rem",
+                marginBottom: "2rem",
+                animation: "slideUp 0.5s ease-out 0.25s backwards",
+                flexWrap: "wrap",
+              }}
+            >
+              <span
+                style={{
+                  fontSize: "0.85rem",
+                  color: "#aaa",
+                  alignSelf: "center",
+                  marginRight: "0.25rem",
+                }}
+              >
+                Dobby Mode:
+              </span>
+              {(["simple", "normal", "expert"] as const).map((mode) => (
+                <button
+                  key={mode}
+                  onClick={() => setComplexity(mode)}
+                  style={{
+                    padding: "0.4rem 0.8rem",
+                    background: complexity === mode ? "#E63995" : "#222",
+                    color: complexity === mode ? "#fff" : "#aaa",
+                    border: `1px solid ${complexity === mode ? "#E63995" : "#333"}`,
+                    borderRadius: "0.375rem",
+                    fontSize: "0.8rem",
+                    fontWeight: complexity === mode ? 600 : 400,
+                    cursor: "pointer",
+                    transition: "all 0.2s ease",
+                    textTransform: "capitalize",
+                  }}
+                  onMouseEnter={(e) => {
+                    if (complexity !== mode) {
+                      e.currentTarget.style.borderColor = "#E63995"
+                      e.currentTarget.style.color = "#E63995"
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (complexity !== mode) {
+                      e.currentTarget.style.borderColor = "#333"
+                      e.currentTarget.style.color = "#aaa"
+                    }
+                  }}
+                  title={
+                    mode === "simple"
+                      ? "Explain Like I'm 5"
+                      : mode === "expert"
+                        ? "Technical & In-Depth"
+                        : "Standard Explanation"
+                  }
+                >
+                  {mode === "simple" ? "ELI5" : mode === "expert" ? "Expert" : "Normal"}
+                </button>
+              ))}
+            </div>
+
             {/* Loading Spinner */}
             {isLoading && (
               <div
@@ -477,16 +582,33 @@ export default function Home() {
                       gap: isMobile ? "0.75rem" : "0",
                     }}
                   >
-                    <h2
-                      style={{
-                        fontSize: isMobile ? "1.1rem" : "1.25rem",
-                        fontWeight: 700,
-                        color: "#E63995",
-                        margin: 0,
-                      }}
-                    >
-                      Dobby's Take
-                    </h2>
+                    <div>
+                      <h2
+                        style={{
+                          fontSize: isMobile ? "1.1rem" : "1.25rem",
+                          fontWeight: 700,
+                          color: "#E63995",
+                          margin: "0 0 0.25rem 0",
+                        }}
+                      >
+                        Dobby's Take
+                      </h2>
+                      <p
+                        style={{
+                          fontSize: "0.75rem",
+                          color: "#666",
+                          margin: 0,
+                          textTransform: "capitalize",
+                          fontStyle: "italic",
+                        }}
+                      >
+                        {complexity === "simple"
+                          ? "Explain Like I'm 5"
+                          : complexity === "expert"
+                            ? "Technical & In-Depth"
+                            : "Standard Explanation"}
+                      </p>
+                    </div>
                     <div style={{ display: "flex", gap: "0.5rem" }}>
                       <button
                         onClick={toggleFavorite}
@@ -624,6 +746,141 @@ export default function Home() {
                     </div>
                   ) : (
                     <p style={{ color: "#aaa", margin: 0 }}>No market data available.</p>
+                  )}
+                </div>
+
+                {/* News Feed Card */}
+                <div
+                  style={{
+                    background: "#1e1e1e",
+                    border: "1px solid #333",
+                    borderRadius: "0.5rem",
+                    padding: isMobile ? "0.875rem" : isTablet ? "1.25rem" : "1.5rem",
+                    animation: "slideUp 0.6s ease-out",
+                    transition: "all 0.3s ease",
+                  }}
+                >
+                  <h2
+                    style={{
+                      fontSize: isMobile ? "1.1rem" : "1.25rem",
+                      fontWeight: 700,
+                      color: "#E63995",
+                      margin: "0 0 1rem 0",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "0.5rem",
+                    }}
+                  >
+                    📰 Latest News
+                    {newsLoading && (
+                      <span
+                        style={{
+                          fontSize: "0.75rem",
+                          color: "#666",
+                          fontWeight: 400,
+                        }}
+                      >
+                        loading...
+                      </span>
+                    )}
+                  </h2>
+
+                  {news.length === 0 && !newsLoading ? (
+                    <p style={{ color: "#666", margin: 0, fontSize: "0.9rem" }}>
+                      No recent news found for this term
+                    </p>
+                  ) : !newsLoading && news.length > 0 ? (
+                    <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+                      {news.map((item) => {
+                        // Format time relative to now
+                        const newsDate = new Date(item.published_at)
+                        const now = new Date()
+                        const diffMs = now.getTime() - newsDate.getTime()
+                        const diffHours = Math.floor(diffMs / (1000 * 60 * 60))
+                        const diffDays = Math.floor(diffHours / 24)
+
+                        let timeStr = ""
+                        if (diffHours < 1) {
+                          timeStr = "Just now"
+                        } else if (diffHours < 24) {
+                          timeStr = `${diffHours}h ago`
+                        } else if (diffDays < 7) {
+                          timeStr = `${diffDays}d ago`
+                        } else {
+                          timeStr = newsDate.toLocaleDateString()
+                        }
+
+                        return (
+                          <a
+                            key={item.url}
+                            href={item.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            style={{
+                              background: "#222",
+                              border: "1px solid #333",
+                              borderRadius: "0.5rem",
+                              padding: "1rem",
+                              textDecoration: "none",
+                              transition: "all 0.2s ease",
+                              cursor: "pointer",
+                              display: "block",
+                            }}
+                            onMouseEnter={(e) => {
+                              e.currentTarget.style.borderColor = "#E63995"
+                              e.currentTarget.style.boxShadow = "0 4px 12px rgba(230, 57, 149, 0.15)"
+                              e.currentTarget.style.transform = "translateX(4px)"
+                            }}
+                            onMouseLeave={(e) => {
+                              e.currentTarget.style.borderColor = "#333"
+                              e.currentTarget.style.boxShadow = "none"
+                              e.currentTarget.style.transform = "translateX(0)"
+                            }}
+                          >
+                            <div
+                              style={{
+                                display: "flex",
+                                justifyContent: "space-between",
+                                alignItems: "flex-start",
+                                gap: "0.75rem",
+                                marginBottom: "0.5rem",
+                              }}
+                            >
+                              <h3
+                                style={{
+                                  color: "#e0e0e0",
+                                  margin: 0,
+                                  fontSize: isMobile ? "0.9rem" : "0.95rem",
+                                  fontWeight: 600,
+                                  lineHeight: "1.3",
+                                  flex: 1,
+                                }}
+                              >
+                                {item.title}
+                              </h3>
+                            </div>
+
+                            <div
+                              style={{
+                                display: "flex",
+                                justifyContent: "space-between",
+                                alignItems: "center",
+                                fontSize: "0.75rem",
+                                color: "#666",
+                                marginTop: "0.5rem",
+                              }}
+                            >
+                              <span style={{ color: "#E63995", fontWeight: 500 }}>
+                                {item.source}
+                              </span>
+                              <span>{timeStr}</span>
+                            </div>
+                          </a>
+                        )
+                      })}
+                    </div>
+                  ) : (
+                    <div style={{ color: "#666", fontSize: "0.9rem" }}>Fetching latest news...</div>
                   )}
                 </div>
               </div>

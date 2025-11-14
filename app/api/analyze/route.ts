@@ -4,19 +4,49 @@ import { NextResponse } from 'next/server'
 const FIREWORKS_API_URL = "https://api.fireworks.ai/inference/v1/chat/completions"
 
 /**
- * Fetches Dobby's explanation from Fireworks AI
+ * Fetches Dobby's explanation from Fireworks AI with complexity levels
  */
-async function getDobbyExplanation(term: string, apiKey: string) {
+async function getDobbyExplanation(term: string, apiKey: string, complexity: "simple" | "normal" | "expert" = "normal") {
   
-  // This is the "system prompt" that defines Dobby's personality
-  const systemPrompt = `
-    You are 'Dobby', a blunt and insightful crypto expert.
-    Explain the term in simple terms.
-    Be professional but keep your blunt "Dobby-style" personality.
-    ABSOLUTELY NO profanity.
-    Your explanation should be a single, concise paragraph.
-    EXPLANATION:
-  `
+  let systemPrompt = ""
+  let maxTokens = 256
+  
+  if (complexity === "simple") {
+    systemPrompt = `
+      You are 'Dobby', a friendly crypto explainer.
+      Explain the term as if explaining to a 10-year-old.
+      Use VERY simple words, analogies, and everyday examples.
+      Avoid technical jargon completely.
+      Be fun and engaging but informative.
+      ABSOLUTELY NO profanity.
+      Your explanation should be a single, concise paragraph (2-3 sentences max).
+      EXPLANATION:
+    `
+    maxTokens = 150
+  } else if (complexity === "expert") {
+    systemPrompt = `
+      You are 'Dobby', a blunt and insightful crypto expert.
+      Provide a TECHNICAL, in-depth explanation of the term.
+      Include tokenomics implications, smart contract relevance, security considerations, and real-world use cases.
+      Reference related concepts and protocols when relevant.
+      Be professional, precise, and assume deep technical knowledge.
+      ABSOLUTELY NO profanity.
+      Your explanation should be 2-3 paragraphs with technical depth.
+      EXPLANATION:
+    `
+    maxTokens = 400
+  } else {
+    // normal mode - original Dobby
+    systemPrompt = `
+      You are 'Dobby', a blunt and insightful crypto expert.
+      Explain the term in simple terms.
+      Be professional but keep your blunt "Dobby-style" personality.
+      ABSOLUTELY NO profanity.
+      Your explanation should be a single, concise paragraph.
+      EXPLANATION:
+    `
+    maxTokens = 256
+  }
 
   try {
     const response = await fetch(FIREWORKS_API_URL, {
@@ -33,7 +63,7 @@ async function getDobbyExplanation(term: string, apiKey: string) {
           { role: "system", content: systemPrompt },
           { role: "user", content: `Explain the term: '${term}'` }
         ],
-        max_tokens: 256,
+        max_tokens: maxTokens,
         temperature: 0.7,
       }),
     })
@@ -90,13 +120,9 @@ async function getCoinGeckoData(term: string) {
   }
 }
 
-/**
- * The main POST handler
- * This now uses the FIREWORKS_API_KEY
- */
 export async function POST(request: Request) {
   try {
-    const { term } = await request.json()
+    const { term, complexity = "normal" } = await request.json()
     // Read the Fireworks key
     const apiKey = process.env.FIREWORKS_API_KEY
 
@@ -109,7 +135,7 @@ export async function POST(request: Request) {
 
     // Run both fetches in parallel
     const [dobbyTake, marketData] = await Promise.all([
-      getDobbyExplanation(term, apiKey), // Pass the new key
+      getDobbyExplanation(term, apiKey, complexity), // Pass the complexity level
       getCoinGeckoData(term)
     ])
 
